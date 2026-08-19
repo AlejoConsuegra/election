@@ -1,3 +1,0 @@
-Label,# Samples,Average,Median,90% Line,95% Line,99% Line,Min,Max,Error %,Throughput,Received KB/sec,Sent KB/sec
-GET Zonas,250,11,10,12,13,40,8,47,0.000%,25.36269,12.33,17.66
-TOTAL,250,11,10,12,13,40,8,47,0.000%,25.36269,12.33,17.66
