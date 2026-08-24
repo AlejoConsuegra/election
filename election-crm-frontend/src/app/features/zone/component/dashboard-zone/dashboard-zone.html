@@ -1,0 +1,88 @@
+<div class="page-container">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-text">
+      <h1>Gestión de Zonas</h1>
+      <p>Administra las zonas geográficas de la campaña</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="router.navigate(['/crear-zona'])">
+        <span class="icon">+</span> Nueva Zona
+      </button>
+      <button class="btn btn-outline" (click)="router.navigate(['/dashboard'])">
+        ← Volver al Dashboard
+      </button>
+    </div>
+  </header>
+
+  <hr class="divider" />
+
+  <!-- Sección de datos -->
+  <section class="data-section">
+    <div class="section-header">
+      <h2>Zonas Registradas</h2>
+      <span class="counter">{{ zonas().length }} zona(s)</span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando zonas...</p>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre de la Zona</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (zona of zonas(); track zona.idZona) {
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>
+                  <div class="zona-cell">
+                    <span class="zona-name">{{ zona.nameZona }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn-icon btn-edit"
+                      (click)="router.navigate(['/editar-zona', zona.idZona])"
+                      title="Editar"
+                    >
+                      ✏️
+                    </button>
+                    <button class="btn-icon btn-delete" (click)="deleteZona(zona)" title="Eliminar">
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty-state">
+                  <p>📭 No hay zonas registradas aún.</p>
+                  <button class="btn btn-primary btn-sm" (click)="router.navigate(['/crear-zona'])">
+                    Registrar la primera zona
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Mensaje de resultado -->
+  @if (message()) {
+    <div class="alert" [class.alert-error]="isError()" [class.alert-success]="!isError()">
+      {{ message() }}
+    </div>
+  }
+</div>

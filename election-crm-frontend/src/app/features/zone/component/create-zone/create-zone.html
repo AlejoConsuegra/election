@@ -1,0 +1,43 @@
+<div class="login-container">
+  <h2>{{ isEditMode() ? 'Editar Zona' : 'Crear Zona' }}</h2>
+  <p class="subtitle">
+    {{
+      isEditMode()
+        ? 'Modifica los datos de la zona geográfica'
+        : 'Registra una nueva zona para la campaña'
+    }}
+  </p>
+
+  @if (isLoading() && isEditMode()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+  } @else {
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Nombre de la Zona</label>
+        <input
+          type="text"
+          [(ngModel)]="nameZona"
+          name="nameZona"
+          required
+          placeholder="Ej: Comuna 1, Vereda El Centro"
+          [disabled]="isLoading()"
+        />
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="isLoading()">
+        {{ isLoading() ? 'Guardando...' : isEditMode() ? 'Actualizar Zona' : 'Guardar Zona' }}
+      </button>
+    </form>
+  }
+
+  @if (message()) {
+    <p class="alert" [class.alert-error]="isError()" [class.alert-success]="!isError()">
+      {{ message() }}
+    </p>
+  }
+
+  <button (click)="router.navigate(['/zonas'])" class="btn-back">← Volver al listado</button>
+</div>

@@ -1,0 +1,86 @@
+<div class="app-layout">
+  <!-- Overlay oscuro para móvil (cierra el menú al hacer clic fuera) -->
+  @if (isMobileMenuOpen()) {
+    <div class="mobile-overlay" (click)="closeMobileMenu()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.mobile-open]="isMobileMenuOpen()">
+    <div class="sidebar-header">
+      <h2 class="logo">🗳️ Election CRM</h2>
+      <button class="btn-close-mobile" (click)="closeMobileMenu()">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Dashboard -->
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="closeMobileMenu()"
+      >
+        <span class="icon">📊</span>
+        <span class="label">Dashboard</span>
+      </a>
+
+      <!-- Zonas -->
+      <a routerLink="/zonas" routerLinkActive="active" class="nav-item" (click)="closeMobileMenu()">
+        <span class="icon">📍</span>
+        <span class="label">Zonas</span>
+      </a>
+
+      <!-- Submenú: Líderes -->
+      <div class="nav-group">
+        <button class="nav-item nav-toggle" (click)="toggleLideresMenu()">
+          <div style="display: flex; align-items: center; gap: 0.75rem">
+            <span class="icon">👥</span>
+            <span class="label">Líderes</span>
+          </div>
+          <span class="arrow" [class.rotated]="isLideresMenuOpen()">▼</span>
+        </button>
+
+        @if (isLideresMenuOpen()) {
+          <div class="submenu">
+            <a
+              routerLink="/crear-usuario"
+              routerLinkActive="active"
+              class="submenu-item"
+              (click)="closeMobileMenu()"
+            >
+              <span class="icon">➕</span>
+              <span class="label">Crear Líder</span>
+            </a>
+            <a
+              routerLink="/usuarios"
+              routerLinkActive="active"
+              class="submenu-item"
+              (click)="closeMobileMenu()"
+            >
+              <span class="icon">📋</span>
+              <span class="label">Lista de Líderes</span>
+            </a>
+          </div>
+        }
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Contenido Principal -->
+  <div class="main-content">
+    <header class="topbar">
+      <!-- Botón hamburguesa (solo visible en móvil) -->
+      <button class="btn-menu-mobile" (click)="toggleMobileMenu()">☰</button>
+
+      <div class="user-info">
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">{{ userRole }}</span>
+      </div>
+
+      <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+    </header>
+
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

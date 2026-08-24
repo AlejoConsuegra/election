@@ -1,0 +1,6 @@
+@Election.CRM.API_HostAddress = http://localhost:5251
+
+GET {{Election.CRM.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

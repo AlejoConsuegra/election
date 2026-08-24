@@ -1,0 +1,248 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-light, #f8fafc);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* --- Sidebar (Estado base: Escritorio) --- */
+.sidebar {
+  width: 260px;
+  background-color: #1e293b;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+}
+
+.btn-close-mobile {
+  display: none; /* Oculto en escritorio */
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.nav-item:hover {
+  background-color: #334155;
+  color: white;
+}
+
+.nav-item.active {
+  background-color: var(--primary, #2563eb);
+  color: white;
+  border-left: 4px solid white;
+}
+
+/* Estilos del Submenú */
+.nav-toggle {
+  justify-content: space-between;
+}
+
+.arrow {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+.arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  background-color: #0f172a;
+  display: flex;
+  flex-direction: column;
+}
+
+.submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem 0.75rem 3.5rem; /* Indentado para jerarquía visual */
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.submenu-item:hover {
+  color: white;
+  background-color: #1e293b;
+}
+
+.submenu-item.active {
+  color: var(--primary, #2563eb);
+  background-color: #1e293b;
+  font-weight: 600;
+}
+
+/* --- Contenido Principal --- */
+.main-content {
+  flex: 1;
+  margin-left: 260px; /* Deja espacio para el sidebar fijo */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.topbar {
+  background-color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 900;
+}
+
+.btn-menu-mobile {
+  display: none; /* Oculto en escritorio */
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-dark, #1e293b);
+  margin-right: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-dark, #1e293b);
+}
+
+.user-role {
+  background-color: var(--primary, #2563eb);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.btn-logout {
+  background-color: transparent;
+  border: 1px solid var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: var(--danger-bg, #fef2f2);
+}
+
+.page-content {
+  flex: 1;
+  padding: 2rem;
+}
+
+/* Overlay oscuro para móvil */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+/* =========================================
+   RESPONSIVE (Móvil y Tablet <= 768px)
+   ========================================= */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%); /* ✅ Oculto por defecto en móvil */
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0); /* ✅ Visible solo cuando se activa */
+  }
+
+  .main-content {
+    margin-left: 0; /* ✅ El contenido ocupa todo el ancho */
+  }
+
+  .btn-menu-mobile {
+    display: block; /* ✅ Mostrar botón hamburguesa */
+  }
+
+  .btn-close-mobile {
+    display: block; /* ✅ Mostrar botón X en el sidebar */
+  }
+
+  .mobile-overlay {
+    display: block; /* ✅ Activar overlay cuando el menú está abierto */
+  }
+
+  .topbar {
+    padding: 1rem;
+  }
+
+  .page-content {
+    padding: 1rem;
+  }
+}

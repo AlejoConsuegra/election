@@ -1,0 +1,46 @@
+services:
+    election-crm-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: election-crm-api
+        ports:
+            - '5070:5070'
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:5070
+            - JwtSettings__SecretKey=${JWT_SECRET}
+            - JwtSettings__Issuer=${JWT_ISSUER}
+            - JwtSettings__Audience=${JWT_AUDIENCE}
+            - JwtSettings__ExpirationInMinutes=${JWT_EXPIRATION_IN_MINUTES}
+            - ConnectionStrings__DefaultConnection=Server=mysql-db;Database=${DB_NAME};User=${DB_USER};Password=${DB_PASSWORD};Port=3306
+        depends_on:
+            mysql-db:
+                condition: service_healthy
+        networks:
+            - election-network
+
+    mysql-db:
+        image: mysql:8.0
+        container_name: election-crm-db
+        ports:
+            - '3307:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_NAME}
+        volumes:
+            - mysql-data:/var/lib/mysql
+        networks:
+            - election-network
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+            timeout: 20s
+            retries: 10
+
+networks:
+    election-network:
+        driver: bridge
+
+volumes:
+    mysql-data:
+        driver: local
