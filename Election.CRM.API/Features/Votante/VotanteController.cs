@@ -44,23 +44,10 @@ public class VotanteController : ControllerBase
     [EnableRateLimiting("write")]
     public async Task<IActionResult> Create([FromBody] CreateVotanteRequest request)
     {
-        var createdVotante = await _votanteService.CreateVotanteAsync(request);
+        // Capturar la IP del cliente
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        
+        var createdVotante = await _votanteService.CreateVotanteAsync(request, ipAddress);
         return CreatedAtAction(nameof(GetById), new { id = createdVotante.Id }, createdVotante);
-    }
-
-    [HttpPut("{id}")]
-    [EnableRateLimiting("write")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateVotanteRequest request)
-    {
-        await _votanteService.UpdateVotanteAsync(id, request);
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    [EnableRateLimiting("write")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        await _votanteService.DeleteVotanteAsync(id);
-        return NoContent();
     }
 }

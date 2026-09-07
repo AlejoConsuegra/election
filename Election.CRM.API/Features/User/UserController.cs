@@ -1,10 +1,10 @@
 using Election.CRM.API.Features.User.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.RateLimiting;
 
 using Election.CRM.API.Common.DTOs; 
+using Election.CRM.API.Common.Exceptions;
 
 namespace Election.CRM.API.Features.User;
 

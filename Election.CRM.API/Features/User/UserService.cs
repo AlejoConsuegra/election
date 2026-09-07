@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-
-using Election.CRM.API.Data;
-using Election.CRM.API.Features.User.Validators;
-using Election.CRM.API.Features.User.DTOs;
 using Election.CRM.API.Common.Services;
 using Election.CRM.API.Common.Helpers;
-
 using Election.CRM.API.Common.DTOs; 
+using Election.CRM.API.Data;
+
+using Election.CRM.API.Features.User.Validators;
+using Election.CRM.API.Features.User.DTOs;
 
 namespace Election.CRM.API.Features.User;
 

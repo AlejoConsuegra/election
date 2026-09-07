@@ -257,7 +257,7 @@ public partial class CrmContext : DbContext
 
             entity.Property(e => e.Id)
                 .HasColumnType("int(11)")
-                .HasColumnName("id"); // ✅ PK ahora es "id"
+                .HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("current_timestamp()")

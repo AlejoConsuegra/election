@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Election.CRM.API.Migrations
 {
     [DbContext(typeof(CrmContext))]
-    [Migration("20260823184249_InitialClean")]
+    [Migration("20260905172320_InitialClean")]
     partial class InitialClean
     {
         /// <inheritdoc />
@@ -319,10 +319,6 @@ namespace Election.CRM.API.Migrations
                         .HasColumnName("id");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Cedula")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAddOrUpdate()

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
+
 using Election.CRM.API.Common.Exceptions;
-using Election.CRM.API.Features.Votante.DTOs;
 
 namespace Election.CRM.API.Common.Middleware;
 
@@ -22,72 +22,72 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
-        catch (CedulaNoRegistradaException ex)
+        catch (ValidationException ex)
         {
-            _logger.LogWarning(ex, "Cédula no registrada en el sistema");
-            await HandleCedulaNoRegistradaAsync(context, ex);
+            // LOG INTERNO: Registramos el error de validación de DTO
+            _logger.LogWarning("Error de validación de datos: {Errors}", string.Join(", ", ex.Errors.SelectMany(e => e.Value)));
+            
+            // RESPUESTA SEGURA AL CLIENTE
+            await HandleValidationExceptionAsync(context, ex);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // LOG INTERNO: Registramos la regla de negocio violada
+            _logger.LogWarning("Regla de negocio violada: {Message}", ex.Message);
+            
+            // RESPUESTA SEGURA AL CLIENTE (Devuelve el mensaje de la regla, pero SIN stack trace)
+            await HandleBusinessRuleExceptionAsync(context, ex);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ocurrió una excepción no controlada");
+            // LOG INTERNO COMPLETO: Para cualquier otro error inesperado
+            _logger.LogError(ex, "Excepción no controlada en la aplicación");
+            
+            // RESPUESTA GENÉRICA Y SEGURA (Nunca expone detalles internos)
             await HandleExceptionAsync(context, ex);
         }
     }
 
-    /// <summary>
-    /// Manejo especial para CedulaNoRegistradaException.
-    /// Devuelve un JSON estructurado con sugerencia de registrar como ocasional.
-    /// </summary>
-    private static Task HandleCedulaNoRegistradaAsync(HttpContext context, CedulaNoRegistradaException ex)
+    private static Task HandleValidationExceptionAsync(HttpContext context, ValidationException ex)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-        var response = new CedulaNoRegistradaResponse
+        var response = new
         {
-            Codigo = "CEDULA_NO_REGISTRADA",
-            Mensaje = ex.Message,
-            Sugerencia = new SugerenciaRegistro
-            {
-                Accion = "REGISTRAR_COMO_OCASIONAL",
-                Mensaje = "Puede registrar a esta persona como votante ocasional",
-                Endpoint = "/api/Ocasionale",
-                DatosPrellenados = new Dictionary<string, object>
-                {
-                    { "cedula", ex.Cedula }
-                }
-            }
+            statusCode = 400,
+            message = "Datos inválidos. Verifique los campos e inténtelo de nuevo.",
+            errors = ex.Errors
         };
 
-        var jsonResponse = JsonSerializer.Serialize(response);
-        return context.Response.WriteAsync(jsonResponse);
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 
-    /// <summary>
-    /// Manejo genérico de excepciones (patrón uniforme existente).
-    /// </summary>
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static Task HandleBusinessRuleExceptionAsync(HttpContext context, InvalidOperationException ex)
     {
         context.Response.ContentType = "application/json";
-
-        var (statusCode, message) = exception switch
-        {
-            InvalidOperationException => (HttpStatusCode.BadRequest, exception.Message),
-            UnauthorizedAccessException => (HttpStatusCode.Forbidden, exception.Message),
-            KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            ArgumentException => (HttpStatusCode.BadRequest, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, "Ocurrió un error interno en el servidor")
-        };
-
-        context.Response.StatusCode = (int)statusCode;
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
         var response = new
         {
-            statusCode = (int)statusCode,
-            message
+            statusCode = 400,
+            message = ex.Message
         };
 
-        var jsonResponse = JsonSerializer.Serialize(response);
-        return context.Response.WriteAsync(jsonResponse);
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    }
+
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+        var response = new
+        {
+            statusCode = 500,
+            message = "Ocurrió un error interno en el servidor. Por favor, inténtelo más tarde."
+        };
+
+        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }
