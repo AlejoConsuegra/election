@@ -1,11 +1,13 @@
 # Election CRM - Prototipo de Modernización Arquitectónica
 
-Repositorio oficial del prototipo web desacoplado para la gestión de información electoral, desarrollado con Angular y .NET bajo una Arquitectura Basada en Características.
+Repositorio oficial del prototipo web desacoplado para la gestión de información electoral,
+desarrollado con Angular y .NET bajo una Arquitectura Basada en Características.
 
 ## Requisitos Previos
 
 - Docker Desktop 4.x o superior
 - Git
+- Node.js y npm (para el frontend)
 
 ## Instalación y Configuración
 
@@ -16,7 +18,10 @@ git clone https://github.com/AlejoConsuegra/election.git
 cd election
 ```
 
-2. Configurar las variables de entorno:
+2. Ingresa a la carpeta del backend (paso obligatorio):
+   cd Election.CRM.API
+
+3. Configurar las variables de entorno:
    El proyecto utiliza variables de entorno para gestionar credenciales de forma segura.
    Copie el archivo de ejemplo y ajústelo si es necesario:
 
