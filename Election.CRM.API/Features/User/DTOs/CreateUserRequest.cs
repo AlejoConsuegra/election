@@ -24,7 +24,7 @@ public class CreateUserRequest
     public string Cedula { get; set; } = null!;
 
     [Required(ErrorMessage = "La contraseña es obligatoria")]
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
+    [StringLength(100, MinimumLength = 12, ErrorMessage = "La contraseña debe tener al menos 8 caracteres")]
     public string Password { get; set; } = null!;
 
     [Required(ErrorMessage = "El rol es obligatorio")]

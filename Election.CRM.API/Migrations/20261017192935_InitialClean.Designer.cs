@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Election.CRM.API.Migrations
 {
     [DbContext(typeof(CrmContext))]
-    [Migration("20260905172320_InitialClean")]
+    [Migration("20261017192935_InitialClean")]
     partial class InitialClean
     {
         /// <inheritdoc />

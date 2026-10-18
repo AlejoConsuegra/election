@@ -64,7 +64,7 @@ public static class SeedExtensions
                 Telefono = "0000000000",
                 Municipio = "Sede Central",
                 Cedula = "1000000000",
-                Password = BCrypt.Net.BCrypt.HashPassword("Admin2026!"),
+                Password = BCrypt.Net.BCrypt.HashPassword("Admin2026AD!"),
                 IdRol = 1
             };
 
