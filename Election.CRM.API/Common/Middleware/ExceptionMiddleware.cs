@@ -1,7 +1,9 @@
 using System.Net;
 using System.Text.Json;
-
+using Election.CRM.API.Common.DTOs;
 using Election.CRM.API.Common.Exceptions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Election.CRM.API.Common.Middleware;
 
@@ -53,14 +55,18 @@ public class ExceptionMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-        var response = new
+        var response = new ApiResponse<object>
         {
-            statusCode = 400,
-            message = "Datos inválidos. Verifique los campos e inténtelo de nuevo.",
-            errors = ex.Errors
+            Status = "error",
+            StatusName = GetStatusName(400),
+            HttpCode = 400,
+            Message = "Datos inválidos. Verifique los campos e inténtelo de nuevo.",
+            Datos = null,
+            Extra = ex.Errors // Aquí van los detalles de validación de FluentValidation
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsJsonAsync(response, options);
     }
 
     private static Task HandleBusinessRuleExceptionAsync(HttpContext context, InvalidOperationException ex)
@@ -68,13 +74,18 @@ public class ExceptionMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-        var response = new
+        var response = new ApiResponse<object>
         {
-            statusCode = 400,
-            message = ex.Message
+            Status = "error",
+            StatusName = GetStatusName(400),
+            HttpCode = 400,
+            Message = ex.Message,
+            Datos = null,
+            Extra = null
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsJsonAsync(response, options);
     }
 
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
@@ -82,12 +93,29 @@ public class ExceptionMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = new
+        var response = new ApiResponse<object>
         {
-            statusCode = 500,
-            message = "Ocurrió un error interno en el servidor. Por favor, inténtelo más tarde."
+            Status = "error",
+            StatusName = GetStatusName(500),
+            HttpCode = 500,
+            Message = "Ocurrió un error interno en el servidor. Por favor, inténtelo más tarde.",
+            Datos = null,
+            Extra = null
         };
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return context.Response.WriteAsJsonAsync(response, options);
     }
+
+    private static string GetStatusName(int code) => code switch
+    {
+        400 => "Bad Request",
+        401 => "Unauthorized",
+        403 => "Forbidden",
+        404 => "Not Found",
+        409 => "Conflict",
+        422 => "Unprocessable Content",
+        500 => "Internal Server Error",
+        _ => "Error"
+    };
 }

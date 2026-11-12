@@ -73,26 +73,4 @@ public class UserController : ControllerBase
         await _userService.DeleteUserAsync(id);
         return NoContent();
     }
-
-    [HttpPost("login")]
-    [EnableRateLimiting("login")]
-    [AllowAnonymous] 
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
-    {
-        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var response = await _userService.LoginAsync(request, ipAddress);
-        
-        if (response == null)
-            return Unauthorized(new { statusCode = 401, message = "Credenciales inválidas" });
-        
-        return Ok(response);
-    }
-
-    [HttpPost("refresh")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
-    {
-        var response = await _userService.RefreshTokenAsync(request.RefreshToken);
-        return Ok(response);
-    }
 }

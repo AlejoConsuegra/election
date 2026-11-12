@@ -1,4 +1,4 @@
-namespace Election.CRM.API.Features.User.DTOs;
+/* namespace Election.CRM.API.Features.User.DTOs;
 
 public class LoginResponse
 {
@@ -9,3 +9,4 @@ public class LoginResponse
     public string Rol { get; set; } = null!;
     public DateTime Expiration { get; set; }
 }
+ */

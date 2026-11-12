@@ -63,6 +63,41 @@ namespace Election.CRM.API.Migrations
                     b.ToTable("asignacion_zonas", (string)null);
                 });
 
+            modelBuilder.Entity("Election.CRM.API.Features.BlacklistedToken.BlacklistedToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Jti")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("RevokedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("Jti")
+                        .IsUnique();
+
+                    b.ToTable("blacklisted_tokens", (string)null);
+                });
+
             modelBuilder.Entity("Election.CRM.API.Features.NombreZona.NombreZona", b =>
                 {
                     b.Property<int>("Id")

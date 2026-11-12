@@ -9,6 +9,7 @@ using Election.CRM.API.Features.Role;
 using Election.CRM.API.Features.User;
 using Election.CRM.API.Features.Votante;
 using Election.CRM.API.Features.AsignacionZona;
+using Election.CRM.API.Features.BlacklistedToken;
 
 namespace Election.CRM.API.Data;
 
@@ -30,6 +31,7 @@ public partial class CrmContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Votante> Votantes { get; set; }
+    public virtual DbSet<BlacklistedToken> BlacklistedTokens { get; set; } // Agregado para la blacklist de tokens
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -275,6 +277,16 @@ public partial class CrmContext : DbContext
                 .HasForeignKey<Votante>(d => d.IdRegistro)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("votantes_ibfk_1"); */
+        });
+
+        modelBuilder.Entity<BlacklistedToken>(entity =>
+        {
+            entity.ToTable("blacklisted_tokens");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Jti).IsUnique();   // Búsqueda rápida por jti
+            entity.HasIndex(e => e.ExpiresAt);        // Para tareas de limpieza
+            entity.Property(e => e.Jti).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.UserId).HasMaxLength(100).IsRequired();
         });
 
         OnModelCreatingPartial(modelBuilder);

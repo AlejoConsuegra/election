@@ -1,5 +1,5 @@
 using Election.CRM.API.Features.User;
-using Election.CRM.API.Features.User.DTOs;
+using Election.CRM.API.Features.Auth.DTOs;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
