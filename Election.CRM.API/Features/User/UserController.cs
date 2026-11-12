@@ -10,7 +10,7 @@ namespace Election.CRM.API.Features.User;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize] 
+[Authorize(Roles = "Admin")]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
