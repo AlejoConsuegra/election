@@ -19,6 +19,25 @@ public class UserValidator
         _currentUserService = currentUserService;
     }
 
+    public virtual Task ValidateIsAdminAsync()
+    {
+        // Asumimos que tu CurrentUserService ya tiene la lógica para verificar el rol 
+        // y lanza una excepción o retorna un booleano. 
+        // Si tu método actual lanza la excepción, esta línea es suficiente:
+        _currentUserService.ValidateIsAdmin();
+        
+        // Si tu método retorna un bool (ej: bool isAdmin = _currentUserService.IsAdmin();), 
+        // descomenta las siguientes líneas y comenta la de arriba:
+        /*
+        if (!_currentUserService.IsAdmin())
+        {
+            throw new UnauthorizedAccessException("Acceso denegado: Se requieren privilegios de Administrador para modificar roles.");
+        }
+        */
+
+        return Task.CompletedTask; 
+    }
+
     /// <summary>
     /// Valida todas las reglas de negocio antes de crear un usuario
     /// </summary>

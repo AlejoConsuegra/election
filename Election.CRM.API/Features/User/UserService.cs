@@ -178,18 +178,13 @@ public class UserService
 
     public async Task PatchUserAsync(int id, PatchUserRequest request)
     {
-        // Validar que el usuario autenticado sea administrador si intenta cambiar el rol
+        // VALIDACIÓN DE MÍNIMO PRIVILEGIO (C-02)
+        // Solo exigimos ser Admin si el request intenta modificar el IdRol.
+        // Esto permite que un usuario pueda actualizar sus propios datos (teléfono, email) 
+        // sin necesitar permisos de administrador, pero bloquea la escalada de privilegios.
         if (request.IdRol.HasValue)
         {
-            var currentUser = _httpContextAccessor.HttpContext?.User;
-            
-            // Usamos IsInRole, que es el método nativo y más confiable de .NET
-            bool isAdmin = currentUser?.IsInRole("Admin") == true;
-            
-            if (!isAdmin)
-            {
-                throw new UnauthorizedAccessException("No tiene permisos para modificar el rol del usuario");
-            }
+            await _validator.ValidateIsAdminAsync();
         }
 
         var user = await _context.Users.FindAsync(id);
