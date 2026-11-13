@@ -9,8 +9,6 @@ public class UserValidator
 {
     private readonly CrmContext _context;
     private readonly CurrentUserService _currentUserService;
-
-    // ID del SuperAdmin (creador del sistema) - no puede ser eliminado
     private const int SUPERADMIN_ID = 1;
 
     public UserValidator(CrmContext context, CurrentUserService currentUserService)
@@ -21,124 +19,91 @@ public class UserValidator
 
     public virtual Task ValidateIsAdminAsync()
     {
-        // Asumimos que tu CurrentUserService ya tiene la lógica para verificar el rol 
-        // y lanza una excepción o retorna un booleano. 
-        // Si tu método actual lanza la excepción, esta línea es suficiente:
         _currentUserService.ValidateIsAdmin();
-        
-        // Si tu método retorna un bool (ej: bool isAdmin = _currentUserService.IsAdmin();), 
-        // descomenta las siguientes líneas y comenta la de arriba:
-        /*
-        if (!_currentUserService.IsAdmin())
-        {
-            throw new UnauthorizedAccessException("Acceso denegado: Se requieren privilegios de Administrador para modificar roles.");
-        }
-        */
-
         return Task.CompletedTask; 
     }
 
-    /// <summary>
-    /// Valida todas las reglas de negocio antes de crear un usuario
-    /// </summary>
     public async Task ValidateCreateAsync(CreateUserRequest request)
     {
-        // 1. Validar permisos (solo Admin puede crear usuarios)
         _currentUserService.ValidateIsAdmin();
 
-        // 2. Validar reglas de negocio
+        // DEFENSA EN PROFUNDIDAD: Bloquear creación de Admins desde la API
+        if (request.IdRol == 1)
+        {
+            throw new InvalidOperationException("No se permite la creación de usuarios con rol Admin a través de esta API.");
+        }
+
         await ValidateCedulaUniqueAsync(request.Cedula);
         await ValidateEmailUniqueAsync(request.Email);
         await ValidateRoleExistsAsync(request.IdRol);
     }
 
-    /// <summary>
-    /// Valida todas las reglas de negocio antes de actualizar un usuario
-    /// </summary>
     public async Task ValidateUpdateAsync(int idUser, UpdateUserRequest request)
     {
-        // 1. Validar permisos
         _currentUserService.ValidateIsAdmin();
 
-        // 2. Validar existencia
-        await ValidateUserExistsAsync(idUser);
+        // DEFENSA EN PROFUNDIDAD: Bloquear asignación de rol Admin
+        if (request.IdRol == 1)
+        {
+            throw new InvalidOperationException("No se permite asignar el rol Admin a través de esta API.");
+        }
 
-        // 3. Validar unicidad (excluyendo el usuario actual)
+        await ValidateUserExistsAsync(idUser);
         await ValidateCedulaUniqueForUpdateAsync(idUser, request.Cedula);
         await ValidateEmailUniqueForUpdateAsync(idUser, request.Email);
-
-        // 4. Validar rol
         await ValidateRoleExistsAsync(request.IdRol);
     }
 
-    /// <summary>
-    /// Valida todas las reglas de negocio antes de eliminar un usuario
-    /// </summary>
     public async Task ValidateDeleteAsync(int idUser)
     {
-        // 1. Validar permisos
         _currentUserService.ValidateIsAdmin();
-
-        // 2. Validar existencia
         await ValidateUserExistsAsync(idUser);
-
-        // 3. Proteger al SuperAdmin del sistema
         await ValidateNotSuperAdmin(idUser);
     }
 
     // ============================================
-    // VALIDACIONES PRIVADAS (reutilizables)
+    // VALIDACIONES PRIVADAS (se mantienen igual)
     // ============================================
-
     private async Task ValidateUserExistsAsync(int idUser)
     {
         var exists = await _context.Users.AnyAsync(u => u.Id == idUser);
-        if (!exists)
-            throw new InvalidOperationException($"El usuario con ID {idUser} no existe");
+        if (!exists) throw new InvalidOperationException($"El usuario con ID {idUser} no existe");
     }
 
     private async Task ValidateCedulaUniqueAsync(string cedula)
     {
         var exists = await _context.Users.AnyAsync(u => u.Cedula == cedula);
-        if (exists)
-            throw new InvalidOperationException("Ya existe un usuario con esa cédula");
+        if (exists) throw new InvalidOperationException("Ya existe un usuario con esa cédula");
     }
 
     private async Task ValidateCedulaUniqueForUpdateAsync(int idUser, string cedula)
     {
-        var exists = await _context.Users
-            .AnyAsync(u => u.Cedula == cedula && u.Id != idUser);
-        if (exists)
-            throw new InvalidOperationException("Ya existe otro usuario con esa cédula");
+        var exists = await _context.Users.AnyAsync(u => u.Cedula == cedula && u.Id != idUser);
+        if (exists) throw new InvalidOperationException("Ya existe otro usuario con esa cédula");
     }
 
     private async Task ValidateEmailUniqueAsync(string email)
     {
         var exists = await _context.Users.AnyAsync(u => u.Email == email);
-        if (exists)
-            throw new InvalidOperationException("Ya existe un usuario con ese email");
+        if (exists) throw new InvalidOperationException("Ya existe un usuario con ese email");
     }
 
     private async Task ValidateEmailUniqueForUpdateAsync(int idUser, string email)
     {
-        var exists = await _context.Users
-            .AnyAsync(u => u.Email == email && u.Id != idUser);
-        if (exists)
-            throw new InvalidOperationException("Ya existe otro usuario con ese email");
+        var exists = await _context.Users.AnyAsync(u => u.Email == email && u.Id != idUser);
+        if (exists) throw new InvalidOperationException("Ya existe otro usuario con ese email");
     }
 
     private async Task ValidateRoleExistsAsync(int idRol)
     {
         var exists = await _context.Roles.AnyAsync(r => r.Id == idRol);
-        if (!exists)
-            throw new InvalidOperationException($"El rol con ID {idRol} no existe");
+        if (!exists) throw new InvalidOperationException($"El rol con ID {idRol} no existe");
     }
 
     private Task ValidateNotSuperAdmin(int idUser)
     {
         if (idUser == SUPERADMIN_ID)
             throw new InvalidOperationException("No se puede eliminar al SuperAdmin del sistema");
-
         return Task.CompletedTask;
     }
 }
