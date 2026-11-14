@@ -8,9 +8,9 @@ namespace Election.CRM.API.Features.Registro.Validators;
 public class RegistroValidator
 {
     private readonly CrmContext _context;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public RegistroValidator(CrmContext context, CurrentUserService currentUserService)
+    public RegistroValidator(CrmContext context, ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -42,8 +42,8 @@ public class RegistroValidator
 
     private int DeterminarIdUserFinal(int? idUserRequest)
     {
-        var currentUserId = _currentUserService.GetUserId();
-        var currentUserRole = _currentUserService.GetUserRole();
+        var currentUserId = _currentUserService.UserId;
+        var currentUserRole = _currentUserService.RoleName;
 
         if (currentUserRole.ToLower() == "admin")
         {

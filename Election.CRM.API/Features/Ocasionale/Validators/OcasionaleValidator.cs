@@ -8,9 +8,9 @@ namespace Election.CRM.API.Features.Ocasionale.Validators;
 public class OcasionaleValidator
 {
     private readonly CrmContext _context;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
-    public OcasionaleValidator(CrmContext context, CurrentUserService currentUserService)
+    public OcasionaleValidator(CrmContext context, ICurrentUserService currentUserService)
     {
         _context = context;
         _currentUserService = currentUserService;
@@ -19,7 +19,7 @@ public class OcasionaleValidator
     public async Task ValidateCreateAsync(CreateOcasionaleRequest request)
     {
         // 1. Validar permisos (cualquier usuario autenticado puede crear ocasionales)
-        var currentUserId = _currentUserService.GetUserId();
+        var currentUserId = _currentUserService.UserId;
 
         // 2. Validar que la zona exista
         await ValidateZonaExistsAsync(request.IdZona);

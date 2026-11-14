@@ -1,7 +1,6 @@
-using Election.CRM.API.Common.Services;
+using Microsoft.EntityFrameworkCore;
 using Election.CRM.API.Data;
 using Election.CRM.API.Features.Votante.DTOs;
-using Microsoft.EntityFrameworkCore;
 
 using ExceptionCedula = Election.CRM.API.Common.Exceptions.CedulaNoRegistradaException;
 
@@ -10,12 +9,10 @@ namespace Election.CRM.API.Features.Votante.Validators;
 public class VotanteValidator
 {
     private readonly CrmContext _context;
-    private readonly CurrentUserService _currentUserService;
 
-    public VotanteValidator(CrmContext context, CurrentUserService currentUserService)
+    public VotanteValidator(CrmContext context)
     {
         _context = context;
-        _currentUserService = currentUserService;
     }
 
     public async Task ValidateCreateAsync(int registroId, int currentUserId)

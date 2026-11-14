@@ -32,7 +32,7 @@ public static class ServiceExtensions
         services.AddScoped<ExcelService>();
         
         services.AddScoped<JwtService>(); 
-        services.AddScoped<CurrentUserService>();  
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<CookieService>();
 
         services.AddScoped<AlertaService>();

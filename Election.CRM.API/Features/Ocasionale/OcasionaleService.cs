@@ -11,12 +11,12 @@ public class OcasionaleService
 {
     private readonly CrmContext _context;
     private readonly OcasionaleValidator _validator;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
     public OcasionaleService(
         CrmContext context,
         OcasionaleValidator validator,
-        CurrentUserService currentUserService)
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _validator = validator;
@@ -127,7 +127,7 @@ public class OcasionaleService
         await _validator.ValidateCreateAsync(request);
 
         // 2. Obtener el IdUser del líder autenticado
-        var currentUserId = _currentUserService.GetUserId();
+        var currentUserId = _currentUserService.UserId;
 
         // 3. Crear el ocasional
         var ocasional = new Ocasionale

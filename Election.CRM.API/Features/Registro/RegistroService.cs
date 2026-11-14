@@ -12,13 +12,13 @@ public class RegistroService
 {
     private readonly CrmContext _context;
     private readonly RegistroValidator _validator;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
     private readonly RegistroExcelProcessor _excelProcessor;
 
     public RegistroService(
         CrmContext context, 
         RegistroValidator validator,
-        CurrentUserService currentUserService,
+        ICurrentUserService currentUserService,
         RegistroExcelProcessor excelProcessor)
     {
         _context = context;
@@ -206,8 +206,8 @@ public class RegistroService
     /// </summary>
     private int DeterminarIdUserFinal(int? idUserRequest)
     {
-        var currentUserId = _currentUserService.GetUserId();
-        var currentUserRole = _currentUserService.GetUserRole();
+        var currentUserId = _currentUserService.UserId;
+        var currentUserRole = _currentUserService.RoleName;
 
         if (currentUserRole.ToLower() == "admin")
         {
@@ -238,8 +238,8 @@ public class RegistroService
         if (extension != ".xlsx")
             throw new InvalidOperationException($"Solo se permiten archivos Excel (.xlsx)");
 
-        var currentUserId = _currentUserService.GetUserId();
-        var currentUserRole = _currentUserService.GetUserRole();
+        var currentUserId = _currentUserService.UserId;
+        var currentUserRole = _currentUserService.RoleName;
 
         int idUserAsignado;
         if (currentUserRole.ToLower() == "admin")

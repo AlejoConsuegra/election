@@ -12,12 +12,12 @@ public class VotanteService
 {
     private readonly CrmContext _context;
     private readonly VotanteValidator _validator;
-    private readonly CurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
     public VotanteService(
         CrmContext context, 
         VotanteValidator validator,
-        CurrentUserService currentUserService)
+        ICurrentUserService currentUserService)
     {
         _context = context;
         _validator = validator;
@@ -143,7 +143,7 @@ public class VotanteService
     public async Task<VotanteDto> CreateVotanteAsync(CreateVotanteRequest request, string ipAddress)
     {
         // 1. Obtener el Id del líder autenticado
-        var currentUserId = _currentUserService.GetUserId();
+        var currentUserId = _currentUserService.UserId;
         
         var registro = await _context.Registros
             .Include(r => r.IdUserNavigation!)

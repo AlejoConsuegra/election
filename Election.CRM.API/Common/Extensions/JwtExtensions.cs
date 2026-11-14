@@ -73,9 +73,9 @@ public static class JwtExtensions
     {
         return new JwtBearerEvents
         {
-            /// <summary>
-            /// Se ejecuta cuando no hay token, el token es inválido o ha expirado (401)
-            /// </summary>
+            // <summary>
+            // Se ejecuta cuando no hay token, el token es inválido o ha expirado (401)
+            // </summary>
             OnChallenge = async context =>
             {
                 // Evita que ASP.NET Core envíe su respuesta por defecto
@@ -94,9 +94,9 @@ public static class JwtExtensions
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             },
 
-            /// <summary>
-            /// Se ejecuta cuando el token es válido pero el usuario no tiene el rol requerido (403)
-            /// </summary>
+            // <summary>
+            // Se ejecuta cuando el token es válido pero el usuario no tiene el rol requerido (403)
+            // </summary>
             OnForbidden = async context =>
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;

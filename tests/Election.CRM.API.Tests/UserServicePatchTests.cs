@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -6,8 +7,9 @@ using Xunit;
 using Election.CRM.API.Data;
 using Election.CRM.API.Features.User;
 using Election.CRM.API.Features.User.DTOs;
-using Election.CRM.API.Features.User.Validators; // <-- Agregado para reconocer UserValidator
+using Election.CRM.API.Features.User.Validators;
 using Election.CRM.API.Features.Role;
+using Election.CRM.API.Common.Services; // <-- Agregado para ICurrentUserService
 
 namespace Election.CRM.API.Tests;
 
@@ -42,21 +44,44 @@ public class UserServicePatchTests
         return context;
     }
 
+    /// <summary>
+    /// HELPER: Crea un mock de ICurrentUserService con los valores deseados.
+    /// Esto reemplaza la necesidad de mockear IHttpContextAccessor y Claims.
+    /// </summary>
+    private Mock<ICurrentUserService> CreateMockCurrentUser(int userId, string roleName, bool isAdmin)
+    {
+        var mock = new Mock<ICurrentUserService>();
+        mock.Setup(x => x.UserId).Returns(userId);
+        mock.Setup(x => x.RoleName).Returns(roleName);
+        mock.Setup(x => x.IsAdmin).Returns(isAdmin);
+        
+        // Si el test llama a ValidateIsAdmin() y no es admin, lanzamos la excepción
+        if (!isAdmin)
+        {
+            mock.Setup(x => x.ValidateIsAdmin())
+                .Throws(new UnauthorizedAccessException("Solo los administradores pueden realizar esta operación"));
+        }
+        
+        return mock;
+    }
+
     [Fact]
     public async Task PatchUserAsync_WhenNonAdminTriesToChangeRole_ShouldThrowUnauthorizedAccessException()
     {
         // Arrange
         var context = CreateInMemoryContext();
         
-        // Creamos un mock del UserValidator que lance la excepción cuando se llame a ValidateIsAdminAsync
-        var mockValidator = new Mock<UserValidator>(context, null!);
-        mockValidator.Setup(v => v.ValidateIsAdminAsync())
-                     .ThrowsAsync(new UnauthorizedAccessException("No tiene permisos para modificar el rol del usuario"));
+        // Simulamos un usuario "Lider" (NO admin) con ID 10
+        var mockCurrentUser = CreateMockCurrentUser(userId: 10, roleName: "Lider", isAdmin: false);
+
+        // Mock del validador (ya no necesitamos configurar ValidateIsAdminAsync aquí,
+        // porque la lógica de "no es admin" la maneja el mock de ICurrentUserService)
+        var mockValidator = new Mock<UserValidator>(context, mockCurrentUser.Object);
 
         var userService = new UserService(
             context,
-            mockValidator.Object, // Inyectamos el mock del validador (ya no es null!)
-            null!, 
+            mockValidator.Object,
+            mockCurrentUser.Object, // <-- Tercer parámetro: ICurrentUserService (NO null!)
             null!, 
             null!, 
             null!  
@@ -68,9 +93,11 @@ public class UserServicePatchTests
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedAccessException>(
+        var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(
             () => userService.PatchUserAsync(10, request)
         );
+        
+        Assert.Equal("Solo un Administrador puede modificar el rol de un usuario.", exception.Message);
     }
 
     [Fact]
@@ -79,15 +106,16 @@ public class UserServicePatchTests
         // Arrange
         var context = CreateInMemoryContext();
         
-        // Creamos un mock del UserValidator que NO lance excepción (simula que la validación de Admin fue exitosa)
-        var mockValidator = new Mock<UserValidator>(context, null!);
-        mockValidator.Setup(v => v.ValidateIsAdminAsync())
-                     .Returns(Task.CompletedTask);
+        // Simulamos un usuario "Admin" con ID 10
+        var mockCurrentUser = CreateMockCurrentUser(userId: 10, roleName: "Admin", isAdmin: true);
+
+        // Mock del validador
+        var mockValidator = new Mock<UserValidator>(context, mockCurrentUser.Object);
 
         var userService = new UserService(
             context,
             mockValidator.Object,
-            null!,
+            mockCurrentUser.Object, // <-- Tercer parámetro: ICurrentUserService (NO null!)
             null!,
             null!,
             null!
@@ -95,7 +123,7 @@ public class UserServicePatchTests
 
         var request = new PatchUserRequest
         {
-            IdRol = 3 // Cambia a Coordinador
+            IdRol = 3 // Cambia legítimamente a Coordinador
         };
 
         // Act

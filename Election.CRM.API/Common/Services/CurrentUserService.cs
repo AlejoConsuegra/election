@@ -3,34 +3,55 @@ using System.Security.Claims;
 
 namespace Election.CRM.API.Common.Services;
 
-public class CurrentUserService
+public class CurrentUserService : ICurrentUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    // 1. Campos privados para almacenar los datos del JWT (se leen UNA sola vez por petición)
+    private readonly int _userId;
+    private readonly string _roleName;
+    private readonly bool _isAdmin;
 
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)
     {
-        _httpContextAccessor = httpContextAccessor;
+        var user = httpContextAccessor.HttpContext?.User;
+
+        // Si no hay usuario autenticado (ej. endpoint con [AllowAnonymous]), dejamos valores por defecto
+        if (user == null || !user.Identity?.IsAuthenticated == true)
+        {
+            _userId = 0;
+            _roleName = string.Empty;
+            _isAdmin = false;
+            return;
+        }
+
+        // 2. LEEMOS EL JWT UNA SOLA VEZ AQUÍ (Equivalente a tu setUser de PHP)
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _roleName = user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+
+        _userId = int.TryParse(userIdClaim, out int id) ? id : 0;
+        _isAdmin = _roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase);
     }
+
+    // ==========================================
+    // 3. PROPIEDADES NUEVAS (Para código más limpio en el futuro)
+    // ==========================================
+    public int UserId => _userId;
+    public string RoleName => _roleName;
+    public bool IsAdmin => _isAdmin;
+
+    // ==========================================
+    // 4. MÉTODOS EXISTENTES (Intactos para no romper nada)
+    // ==========================================
 
     /// <summary>
     /// Obtiene el ID del usuario autenticado desde el token JWT
     /// </summary>
     public int GetUserId()
     {
-        var userIdClaim = _httpContextAccessor.HttpContext?.User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userIdClaim))
+        if (_userId == 0)
         {
             throw new UnauthorizedAccessException("No se pudo identificar al usuario autenticado");
         }
-
-        if (!int.TryParse(userIdClaim, out int userId))
-        {
-            throw new UnauthorizedAccessException("El ID del usuario no tiene un formato válido");
-        }
-
-        return userId;
+        return _userId;
     }
 
     /// <summary>
@@ -38,15 +59,11 @@ public class CurrentUserService
     /// </summary>
     public string GetUserRole()
     {
-        var roleClaim = _httpContextAccessor.HttpContext?.User?
-            .FindFirst(ClaimTypes.Role)?.Value;
-
-        if (string.IsNullOrEmpty(roleClaim))
+        if (string.IsNullOrEmpty(_roleName))
         {
             throw new UnauthorizedAccessException("No se pudo identificar el rol del usuario");
         }
-
-        return roleClaim;
+        return _roleName;
     }
 
     /// <summary>
@@ -54,8 +71,7 @@ public class CurrentUserService
     /// </summary>
     public void ValidateIsAdmin()
     {
-        var role = GetUserRole();
-        if (role.ToLower() != "admin")
+        if (!_isAdmin)
         {
             throw new UnauthorizedAccessException("Solo los administradores pueden realizar esta operación");
         }

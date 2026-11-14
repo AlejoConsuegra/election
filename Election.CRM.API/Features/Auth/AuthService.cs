@@ -124,12 +124,14 @@ public class AuthService
         };
     }
 
-    public async Task RevokeAllUserRefreshTokensAsync(string userId)
+    public Task RevokeAllUserRefreshTokensAsync(string userId)
     {
         // Marca como revocados todos los refresh tokens activos de este usuario
         /* await _context.RefreshTokens
             .Where(rt => rt.UserId == userId && !rt.IsRevoked)
             .ExecuteUpdateAsync(setters => setters.SetProperty(rt => rt.IsRevoked, true)); */
+
+        return Task.CompletedTask;
     }
 
     public async Task CompleteLogoutAsync(string userId, string jti, DateTime expiresAt)
