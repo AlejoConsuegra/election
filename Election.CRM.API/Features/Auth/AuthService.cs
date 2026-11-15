@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Election.CRM.API.Common.Extensions; 
+using Election.CRM.API.Common.Exceptions;
+
 using Election.CRM.API.Data;
 using Election.CRM.API.Common.Services;
 using Election.CRM.API.Common.Helpers;
@@ -8,6 +13,7 @@ using Election.CRM.API.Common.DTOs;
 using Election.CRM.API.Features.User.DTOs;
 using Election.CRM.API.Features.Auth.DTOs;
 using Election.CRM.API.Features.BlacklistedToken.Services;
+
 
 namespace Election.CRM.API.Features.Auth;
 
@@ -19,6 +25,7 @@ public class AuthService
     private readonly LoginAttemptService _loginAttemptService;
     private readonly RefreshTokenService _refreshTokenService;
     private readonly ITokenBlacklistService _blacklistService;
+    private readonly ICurrentUserService _currentUserService;
 
     public AuthService(
         CrmContext context, 
@@ -26,7 +33,8 @@ public class AuthService
         CookieService cookieService,
         LoginAttemptService loginAttemptService,
         RefreshTokenService refreshTokenService,
-        ITokenBlacklistService blacklistService    
+        ITokenBlacklistService blacklistService,
+        ICurrentUserService currentUserService 
     )
     {
         _context = context;
@@ -35,6 +43,23 @@ public class AuthService
         _loginAttemptService = loginAttemptService;
         _refreshTokenService = refreshTokenService;
         _blacklistService = blacklistService;
+        _currentUserService = currentUserService;
+    }
+
+    public async Task<UserProfileDto> GetCurrentUserProfile()
+    {
+        if (_currentUserService.UserId == 0)
+        {
+            throw new UnauthorizedAccessException("No se pudo identificar al usuario en el token.");
+        }
+
+        return new UserProfileDto
+        {
+            Id = _currentUserService.UserId,
+            Nombre = _currentUserService.Nombre,
+            Email = _currentUserService.Email,
+            Rol = _currentUserService.RoleName
+        };
     }
 
     public async Task<LoginResponseData> LoginAsync(LoginRequest request, string ipAddress)
@@ -134,16 +159,36 @@ public class AuthService
         return Task.CompletedTask;
     }
 
-    public async Task CompleteLogoutAsync(string userId, string jti, DateTime expiresAt)
+    public async Task CompleteLogoutAsync(ClaimsPrincipal user)
     {
-        // 1. Revocar el Access Token en la base de datos (Blacklist)
+        var jti = user.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
+        {
+            throw new InvalidOperationException("No se pudo identificar el token o el usuario para la revocación.");
+        }
+
+        var expClaim = user.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
+        DateTime expiresAt;
+        
+        if (long.TryParse(expClaim, out long expTimestamp))
+        {
+            expiresAt = DateTimeOffset.FromUnixTimeSeconds(expTimestamp).UtcDateTime;
+        }
+        else
+        {
+            // Fallback de seguridad
+            expiresAt = DateTime.UtcNow.AddMinutes(30);
+        }
+
+        // Revocar el Access Token en la base de datos (Blacklist)
         await _blacklistService.RevokeAsync(jti, userId, expiresAt, "logout");
 
-        // 2. Revocar TODOS los Refresh Tokens de este usuario en memoria
-        // (Usamos el método que ya tienes en tu RefreshTokenService)
+        // Revocar TODOS los Refresh Tokens de este usuario
         _refreshTokenService.RevokeAllUserTokens(int.Parse(userId));
 
-        // 3. Limpiar las cookies del navegador
+        // Limpiar las cookies del navegador
         _cookieService.ClearAuthCookies(); 
     }
 

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Election.CRM.API.Data;
-using Election.CRM.API.Common.Services; // <-- Aquí se importa la interfaz
+using Election.CRM.API.Common.Services; 
 using Election.CRM.API.Features.User.DTOs;
 
 namespace Election.CRM.API.Features.User.Validators;

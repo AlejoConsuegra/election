@@ -4,8 +4,9 @@ public interface ICurrentUserService
 {
     int UserId { get; }
     string RoleName { get; }
+    string Nombre { get; } 
+    string Email { get; }   
     bool IsAdmin { get; }
     
-    // Tu método existente, lo mantenemos por compatibilidad
     void ValidateIsAdmin(); 
 }

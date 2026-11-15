@@ -13,6 +13,7 @@ using Election.CRM.API.Common.Extensions;
 
 using Election.CRM.API.Features.Auth.DTOs;
 using Election.CRM.API.Features.BlacklistedToken.Services;
+using System.Threading.Tasks;
 
 namespace Election.CRM.API.Features.Auth;
 
@@ -29,6 +30,16 @@ public class AuthController : ControllerBase
     {
         _blacklistService = blacklistService;
         _authService = authService;
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetMe()
+    {
+        // El controlador solo delega. El middleware de JWT ya validó el token antes de llegar aquí.
+        var profile = await _authService.GetCurrentUserProfile();
+        
+        return this.Success(profile, "Perfil obtenido correctamente.", 200);
     }
 
     [HttpPost("login")]
@@ -52,37 +63,12 @@ public class AuthController : ControllerBase
         return this.Success(response, "Token renovado correctamente.", 200);
     }
     
-     [HttpPost("logout")]
+    [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        // 1. Extraer claims del token (ya validado por el middleware de JWT)
-        var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
-        {
-            return this.Error("No se pudo identificar el token o el usuario para la revocación.", 400);
-        }
-
-        // 2. Extraer la fecha de expiración del claim 'exp' (Unix timestamp)
-        var expClaim = User.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
-        DateTime expiresAt;
+        await _authService.CompleteLogoutAsync(User);
         
-        if (long.TryParse(expClaim, out long expTimestamp))
-        {
-            expiresAt = DateTimeOffset.FromUnixTimeSeconds(expTimestamp).UtcDateTime;
-        }
-        else
-        {
-            // Fallback de seguridad: si no hay claim 'exp', asumimos 30 minutos desde ahora
-            expiresAt = DateTime.UtcNow.AddMinutes(30);
-        }
-
-        // 3. Delegar toda la lógica de negocio al servicio
-        await _authService.CompleteLogoutAsync(userId, jti, expiresAt);
-
-        // 4. Retornar respuesta exitosa
         return this.Success<object>(null, "Sesión cerrada correctamente.", 200);
     }
     
