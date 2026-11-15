@@ -144,7 +144,7 @@ public class AuthService
         _refreshTokenService.RevokeAllUserTokens(int.Parse(userId));
 
         // 3. Limpiar las cookies del navegador
-        _cookieService.ClearAuthCookies(); // Asegúrate de que este método exista en tu CookieService
+        _cookieService.ClearAuthCookies(); 
     }
 
     public void ClearAuthCookies()

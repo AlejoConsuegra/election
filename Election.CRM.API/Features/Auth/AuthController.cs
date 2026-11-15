@@ -52,14 +52,12 @@ public class AuthController : ControllerBase
         return this.Success(response, "Token renovado correctamente.", 200);
     }
     
-    [HttpPost("logout")]
+     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        // 1. Extraer el JTI del token actual (ya validado por el middleware de JWT)
+        // 1. Extraer claims del token (ya validado por el middleware de JWT)
         var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-        
-        // 2. Extraer el ID del usuario
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
@@ -67,8 +65,8 @@ public class AuthController : ControllerBase
             return this.Error("No se pudo identificar el token o el usuario para la revocación.", 400);
         }
 
-        // 3. Extraer la fecha de expiración del claim 'exp' (Unix timestamp)
-        var expClaim = User.FindFirst("exp")?.Value;
+        // 2. Extraer la fecha de expiración del claim 'exp' (Unix timestamp)
+        var expClaim = User.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
         DateTime expiresAt;
         
         if (long.TryParse(expClaim, out long expTimestamp))
@@ -81,15 +79,10 @@ public class AuthController : ControllerBase
             expiresAt = DateTime.UtcNow.AddMinutes(30);
         }
 
-        // 4. Revocar el Access Token en la blacklist
-        await _blacklistService.RevokeAsync(jti, userId, expiresAt, "logout");
+        // 3. Delegar toda la lógica de negocio al servicio
+        await _authService.CompleteLogoutAsync(userId, jti, expiresAt);
 
-        // 5. Revocar TODOS los Refresh Tokens del usuario en la base de datos
-        await _authService.RevokeAllUserRefreshTokensAsync(userId);
-
-        // 6. Eliminar las cookies del navegador
-        _authService.ClearAuthCookies();
-
+        // 4. Retornar respuesta exitosa
         return this.Success<object>(null, "Sesión cerrada correctamente.", 200);
     }
     
