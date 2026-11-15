@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
@@ -16,6 +17,15 @@ public static class SwaggerExtensions
                 Version = "v1",
                 Description = "API para la plataforma de inteligencia y gestión electoral"
             });
+
+            // Lee los comentarios XML para usar ejemplos y descripciones realistas
+            // en lugar de los valores aleatorios que genera Swashbuckle por defecto.
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            if (File.Exists(xmlPath))
+            {
+                c.IncludeXmlComments(xmlPath);
+            }
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

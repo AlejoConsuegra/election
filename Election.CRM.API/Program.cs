@@ -6,10 +6,12 @@ using Election.CRM.API.Common.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
+/* builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
-});
+}); */
+
+builder.Services.ConfigureApiBehavior();
 
 builder.AddKestrelConfiguration();
 

@@ -12,11 +12,16 @@ public static class ApiBehaviorExtensions
     {
         services.Configure<ApiBehaviorOptions>(options =>
         {
+            // El filtro automático de ModelState debe estar ACTIVO. Si se suprime,
+            // el InvalidModelStateResponseFactory nunca se ejecuta y las validaciones
+            // de los DTO se acumulan sin producir rechazo (ASVS V5.1.3).
+            options.SuppressModelStateInvalidFilter = false;
+
             options.InvalidModelStateResponseFactory = context =>
             {
                 // 1. OBTENER EL LOGGER PARA REGISTRAR EL ERROR INTERNAMENTE
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-                
+
                 // 2. EXTRAER LOS ERRORES DE FORMA LIMPIA
                 var errors = context.ModelState
                     .Where(e => e.Value?.Errors?.Count > 0)

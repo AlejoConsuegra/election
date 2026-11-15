@@ -1,28 +1,66 @@
 using System.ComponentModel.DataAnnotations;
+using Election.CRM.API.Common.Validation;
 
 namespace Election.CRM.API.Features.Registro.DTOs;
 
+/// <summary>
+/// Datos para actualización total de un votante. Todos los campos salvo IdUser
+/// son obligatorios. Aplica las mismas reglas de formato que la creación.
+/// </summary>
 public class UpdateRegistroRequest
 {
-    // Opcional: Admin lo envía (puede cambiar líder), Líder no lo envía
+    /// <summary>
+    /// Líder al que se reasigna el votante. Solo el Admin puede modificarlo.
+    /// </summary>
+    /// <example>2</example>
+    [Range(1, int.MaxValue, ErrorMessage = "El identificador del líder debe ser un número mayor que cero.")]
     public int? IdUser { get; set; }
 
+    /// <summary>
+    /// Nombre completo del votante. Solo se admiten letras y espacios.
+    /// </summary>
+    /// <example>María Fernanda Rodríguez</example>
     [Required(ErrorMessage = "El nombre del votante es obligatorio")]
-    [StringLength(255, MinimumLength = 3)]
+    [NombreValido]
     public string Nombre { get; set; } = null!;
 
+    /// <summary>
+    /// Cédula de ciudadanía del votante. Solo dígitos, sin puntos ni espacios.
+    /// </summary>
+    /// <example>1045678901</example>
     [Required(ErrorMessage = "La cédula es obligatoria")]
+    [CedulaValida]
     public string Cedula { get; set; } = null!;
 
+    /// <summary>
+    /// Dirección de residencia del votante.
+    /// </summary>
+    /// <example>Calle 45 # 12-34</example>
     [Required(ErrorMessage = "La dirección es obligatoria")]
+    [DireccionValida]
     public string Direccion { get; set; } = null!;
 
+    /// <summary>
+    /// Barrio, vereda o urbanización de residencia.
+    /// </summary>
+    /// <example>El Carmen</example>
     [Required(ErrorMessage = "El barrio es obligatorio")]
+    [BarrioValido]
     public string Barrio { get; set; } = null!;
 
+    /// <summary>
+    /// Teléfono de contacto. Fijo local de 7 dígitos o móvil/nacional de 10 dígitos.
+    /// </summary>
+    /// <example>3001234567</example>
     [Required(ErrorMessage = "El celular es obligatorio")]
+    [TelefonoValido]
     public string Celular { get; set; } = null!;
 
+    /// <summary>
+    /// Puesto de votación asignado al votante.
+    /// </summary>
+    /// <example>IE Distrital La Esperanza</example>
     [Required(ErrorMessage = "El puesto es obligatorio")]
+    [PuestoValido]
     public string Puesto { get; set; } = null!;
 }
