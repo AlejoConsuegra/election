@@ -33,7 +33,7 @@ export class UserService {
   }
 
   loginUrl() {
-    return 'http://localhost:5070/api/User/login';
+    return 'http://localhost:5070/api/Auth/login';
   }
 
   userAuthenticated() {

@@ -41,7 +41,17 @@ export class Layout {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        // La petición al backend fue exitosa, la cookie ya se destruyó.
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        // Si la petición falla (ej. error de red), limpiamos el estado local
+        // y redirigimos al login igual para no dejar al usuario atrapado.
+        this.authService.clearSession();
+        this.router.navigate(['/login']);
+      },
+    });
   }
 }

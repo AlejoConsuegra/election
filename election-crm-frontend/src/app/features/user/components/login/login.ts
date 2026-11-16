@@ -1,8 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../user/service/auth.service';
+import { AuthService } from '../../../user/service/auth.service'; // Ajusta la ruta si es necesario
 import { LoginRequest } from '../../../user/interfaces/login.request';
 
 @Component({
@@ -13,15 +12,16 @@ import { LoginRequest } from '../../../user/interfaces/login.request';
   styleUrl: './login.css',
 })
 export class Login {
-  public router = inject(Router);
   private authService = inject(AuthService);
 
   cedula: string = '';
   password: string = '';
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   onSubmit(): void {
     this.errorMessage = '';
+    this.isLoading = true;
 
     const credentials: LoginRequest = {
       cedula: this.cedula,
@@ -29,13 +29,33 @@ export class Login {
     };
 
     this.authService.login(credentials).subscribe({
-      next: (response) => {
-        this.router.navigate(['/dashboard']);
+      next: (success) => {
+        if (!success) {
+          this.errorMessage = 'Credenciales inválidas';
+          this.isLoading = false;
+          return;
+        }
+
+        // Le delegamos TODO al AuthService: cargar perfil y redirigir por rol
+        this.authService.loadProfile(true).subscribe({
+          next: (profile) => {
+            this.isLoading = false;
+            if (!profile) {
+              this.errorMessage = 'No se pudo cargar el perfil del usuario.';
+            }
+          },
+          error: () => {
+            this.isLoading = false;
+            this.errorMessage = 'Error al cargar el perfil del usuario.';
+          },
+        });
       },
       error: (err) => {
-        console.error('Error en login:', err);
+        this.isLoading = false;
         if (err.status === 401 || err.status === 403) {
           this.errorMessage = 'Credenciales inválidas';
+        } else if (err.status === 429) {
+          this.errorMessage = 'Demasiados intentos fallidos.';
         } else {
           this.errorMessage = 'Error de conexión con el servidor';
         }

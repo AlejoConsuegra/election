@@ -1,17 +1,24 @@
-import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { map } from 'rxjs';
+import { AuthService } from '../../features/user/service/auth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
+/**
+ * Guard para rutas protegidas (equivale a PRIVATE_ROUTES + ROLE_ROUTES del middleware de Next.js).
+ * Si no hay perfil en memoria, intenta cargarlo desde la cookie HttpOnly.
+ * Si la cookie es válida, deja pasar. Si no, redirige al login.
+ */
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
   const router = inject(Router);
-  const token = localStorage.getItem('token');
 
-  if (token) {
-    // OPCIONAL: Si deseas validar si expiró sin esperar respuesta del servidor,
-    // puedes decodificar la fecha de expiración del JWT (claim 'exp').
+  // Caso 1: ya hay perfil cargado (navegación interna). Decidir directo.
+  if (authService.loadProfile()) {
     return true;
   }
 
-  // Si no hay token, redirigir al login
-  router.navigate(['/login']);
-  return false;
+  // Caso 2: recarga de página en ruta protegida. Consultar /me con la cookie.
+  return authService
+    .loadProfile()
+    .pipe(map((profile) => (profile ? true : router.parseUrl('/login'))));
 };

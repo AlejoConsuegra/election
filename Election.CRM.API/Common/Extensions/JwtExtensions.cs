@@ -42,7 +42,22 @@ public static class JwtExtensions
             options.RequireHttpsMetadata = false;
             options.SaveToken = true;
             options.TokenValidationParameters = BuildTokenValidationParameters(jwtSettings, key);
-            options.Events = BuildJwtEvents();
+            /* options.Events = BuildJwtEvents(); */
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    // Intentar leer el token desde la cookie 'auth_token'
+                    var token = context.Request.Cookies["auth_token"];
+                    
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        context.Token = token;
+                    }
+                    
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         return services;
