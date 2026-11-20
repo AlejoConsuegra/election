@@ -45,7 +45,7 @@ public class PatchUserRequest
     public string? Municipio { get; set; }
 
     /// <summary>
-    /// Rol asignado. Solo se admiten Líder (2) y Coordinador (3).
+    /// Rol asignado. Solo se admiten Líder (2) y Coordinator (3).
     /// Su modificación está restringida al rol Admin en la capa de servicio.
     /// </summary>
     /// <example>2</example>

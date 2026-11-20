@@ -59,7 +59,7 @@ public class CreateUserRequest
     public string Password { get; set; } = null!;
 
     /// <summary>
-    /// Rol asignado. Solo se admiten Líder (2) y Coordinador (3).
+    /// Rol asignado. Solo se admiten Líder (2) y Coordinator (3).
     /// El rol Admin (1) no puede crearse desde la API.
     /// </summary>
     /// <example>2</example>

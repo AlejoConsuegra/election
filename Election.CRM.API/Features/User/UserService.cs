@@ -42,7 +42,7 @@ public class UserService
         // 1. FILTRADO JERÁRQUICO (Código limpio usando el servicio centralizado)
         if (_currentUserService.RoleName == "Coordinator")
         {
-            // Coordinador solo puede ver Líderes (IdRol = 2)
+            // Coordinator solo puede ver Líderes (IdRol = 2)
             query = query.Where(u => u.IdRol == 2);
         }
         else if (_currentUserService.RoleName == "Lider")

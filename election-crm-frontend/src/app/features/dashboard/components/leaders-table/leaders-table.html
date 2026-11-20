@@ -1,0 +1,270 @@
+<section class="dash-card rise overflow-hidden" style="animation-delay: 480ms">
+  <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-[#EEF2F8]">
+    <div>
+      <h2 class="text-[17px] font-bold text-[#0B2545]">Últimos Líderes Registrados</h2>
+      <p class="text-[12.5px] text-slate-400 mt-0.5 tabular-nums">
+        {{ fmt(sorted().length) }} de {{ fmt(leaders().length) }} registros
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="relative">
+        <svg
+          class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          type="text"
+          [ngModel]="search()"
+          (ngModelChange)="setSearch($event)"
+          placeholder="Buscar nombre, cédula, municipio…"
+          aria-label="Buscar líderes"
+          class="h-9 w-[248px] pl-9 pr-3 rounded-lg bg-[#F5F7FB] border border-[#E6EBF4] text-[13px] text-slate-700 outline-none focus:border-[#1E5AA8] focus:bg-white focus:ring-2 focus:ring-[#1E5AA8]/20 transition-all"
+        />
+      </div>
+
+      <select
+        [ngModel]="rolFilter()"
+        (ngModelChange)="setRol($event)"
+        aria-label="Filtrar por rol"
+        class="h-9 px-3 rounded-lg bg-[#F5F7FB] border border-[#E6EBF4] text-[13px] text-slate-700 outline-none focus:border-[#1E5AA8] cursor-pointer"
+      >
+        @for (r of roles(); track r) {
+          <option [value]="r">{{ r === 'todos' ? 'Todos los roles' : r }}</option>
+        }
+      </select>
+
+      <button
+        type="button"
+        (click)="toggleShowAll()"
+        class="h-9 px-3.5 rounded-lg border border-[#1E5AA8]/40 text-[#1E5AA8] text-[12.5px] font-semibold hover:bg-[#1E5AA8]/10 transition-colors"
+      >
+        {{ showAll() ? 'Paginar' : 'Ver todos' }}
+      </button>
+
+      <button
+        type="button"
+        (click)="goCreate()"
+        class="h-9 px-3.5 rounded-lg bg-[#F5A623] text-[#0B2545] text-[12.5px] font-bold hover:bg-[#e09a1c] transition-colors"
+      >
+        + Nuevo líder
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="p-5 space-y-3">
+      @for (s of [1, 2, 3, 4, 5]; track s) {
+        <div class="sk h-12 w-full"></div>
+      }
+    </div>
+  } @else {
+    <div class="scroll-area overflow-x-auto">
+      <table class="w-full min-w-[860px]">
+        <thead>
+          <tr class="bg-[#F7F9FC]">
+            <th class="th w-14">#</th>
+            <th class="th">
+              <button type="button" class="th-btn" (click)="toggleSort('nombre')">
+                Nombre Completo
+                <span
+                  class="sort-ico"
+                  [class.on]="sortKey() === 'nombre'"
+                  [class.rotate-180]="sortKey() === 'nombre' && sortDir() === 'asc'"
+                  >▾</span
+                >
+              </button>
+            </th>
+            <th class="th">
+              <button type="button" class="th-btn" (click)="toggleSort('municipio')">
+                Municipio / Zona
+                <span
+                  class="sort-ico"
+                  [class.on]="sortKey() === 'municipio'"
+                  [class.rotate-180]="sortKey() === 'municipio' && sortDir() === 'asc'"
+                  >▾</span
+                >
+              </button>
+            </th>
+            <th class="th">
+              <button type="button" class="th-btn" (click)="toggleSort('rol')">
+                Rol
+                <span
+                  class="sort-ico"
+                  [class.on]="sortKey() === 'rol'"
+                  [class.rotate-180]="sortKey() === 'rol' && sortDir() === 'asc'"
+                  >▾</span
+                >
+              </button>
+            </th>
+            <th class="th text-right">
+              <button type="button" class="th-btn justify-end" (click)="toggleSort('votos')">
+                Votos
+                <span
+                  class="sort-ico"
+                  [class.on]="sortKey() === 'votos'"
+                  [class.rotate-180]="sortKey() === 'votos' && sortDir() === 'asc'"
+                  >▾</span
+                >
+              </button>
+            </th>
+            <th class="th">Estado</th>
+            <th class="th w-16"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of pagedLeaders(); track l.id; let i = $index) {
+            <tr class="trow" (click)="openDetail(l)">
+              <td class="td text-slate-400 tabular-nums">{{ rowIndex(i) }}</td>
+              <td class="td">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="grid place-items-center w-9 h-9 rounded-full bg-[#1E5AA8]/10 text-[#1E5AA8] text-[11.5px] font-bold shrink-0"
+                  >
+                    {{ initials(l.nombre) }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="text-[13.5px] font-semibold text-[#0B2545] truncate">
+                      {{ l.nombre }}
+                    </p>
+                    <p class="text-[11.5px] text-slate-400 truncate">
+                      {{ l.email || 'Sin correo' }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td class="td">
+                <p class="text-[13px] text-slate-700">{{ l.municipio }}</p>
+                <p class="text-[11.5px] text-slate-400">{{ l.zona }}</p>
+              </td>
+              <td class="td">
+                <span
+                  class="px-2.5 py-1 rounded-md bg-[#8B5CF6]/15 text-[#7C3AED] text-[11.5px] font-semibold"
+                  >{{ l.rol }}</span
+                >
+              </td>
+              <td class="td text-right">
+                <span class="text-[14px] font-bold text-[#0B2545] tabular-nums">{{
+                  fmt(l.votos)
+                }}</span>
+              </td>
+              <td class="td">
+                @if (l.activo) {
+                  <span
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#15803D]"
+                  >
+                    <span class="w-2 h-2 rounded-full bg-[#22C55E]"></span>Activo
+                  </span>
+                } @else {
+                  <span
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-400"
+                  >
+                    <span class="w-2 h-2 rounded-full bg-slate-300"></span>Inactivo
+                  </span>
+                }
+              </td>
+              <td class="td text-right">
+                <span class="inline-grid place-items-center w-7 h-7 rounded-md text-slate-400">
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="py-16 text-center">
+                <svg
+                  class="w-11 h-11 mx-auto text-slate-300 mb-3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+                <p class="text-sm font-medium text-slate-500">
+                  {{
+                    leaders().length === 0
+                      ? 'No hay líderes registrados en el sistema aún.'
+                      : 'Ningún registro coincide con el filtro.'
+                  }}
+                </p>
+                @if (leaders().length === 0) {
+                  <button
+                    type="button"
+                    (click)="goCreate()"
+                    class="mt-4 px-4 py-2 rounded-lg bg-[#0B2545] text-white text-[12.5px] font-semibold hover:bg-[#1E5AA8] transition-colors"
+                  >
+                    Registrar el primero
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    (click)="clearFilters()"
+                    class="mt-4 px-4 py-2 rounded-lg border border-[#E6EBF4] text-[12.5px] font-semibold text-slate-600 hover:bg-[#F5F7FB] transition-colors"
+                  >
+                    Limpiar filtros
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (!showAll() && totalPages() > 1) {
+      <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-t border-[#EEF2F8]">
+        <span class="text-[12px] text-slate-400 tabular-nums"
+          >Página {{ page() }} de {{ totalPages() }}</span
+        >
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            (click)="setPage(page() - 1)"
+            [disabled]="page() === 1"
+            class="pg"
+            aria-label="Página anterior"
+          >
+            ‹
+          </button>
+          @for (p of pages(); track p) {
+            <button type="button" (click)="setPage(p)" class="pg" [class.pg-on]="p === page()">
+              {{ p }}
+            </button>
+          }
+          <button
+            type="button"
+            (click)="setPage(page() + 1)"
+            [disabled]="page() === totalPages()"
+            class="pg"
+            aria-label="Página siguiente"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    }
+  }
+</section>

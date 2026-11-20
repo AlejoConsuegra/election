@@ -135,11 +135,11 @@ public sealed class EmailValidoAttribute : ValidationAttribute
 public sealed class RolAsignableAttribute : ValidationAttribute
 {
     private const int RolLider = 2;
-    private const int RolCoordinador = 3;
+    private const int RolCoordinator = 3;
 
     public RolAsignableAttribute()
     {
-        ErrorMessage = "El rol debe ser Líder (2) o Coordinador (3). El rol Admin no se puede asignar desde esta operación.";
+        ErrorMessage = "El valor seleccionado para el rol no es válido";
     }
 
     public override bool IsValid(object? value)
@@ -147,7 +147,7 @@ public sealed class RolAsignableAttribute : ValidationAttribute
         if (value is null) return true;
         if (value is not int rol) return false;
 
-        return rol == RolLider || rol == RolCoordinador;
+        return rol == RolLider || rol == RolCoordinator;
     }
 }
 

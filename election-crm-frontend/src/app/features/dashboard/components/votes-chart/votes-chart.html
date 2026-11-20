@@ -1,0 +1,108 @@
+<article
+  class="dash-card chart-card rise xl:col-span-2 p-6 relative overflow-hidden"
+  style="animation-delay: 180ms"
+>
+  <div class="chart-glow"></div>
+  <div class="relative flex items-start justify-between gap-4 mb-6">
+    <div>
+      <h2 class="text-[17px] font-bold text-white">Histórico de Votos</h2>
+      <p class="text-[12.5px] text-white/60 mt-0.5">Proyección contra confirmación mensual</p>
+    </div>
+    <span class="px-2.5 py-1 rounded-md bg-white/15 text-white text-[11px] font-semibold">
+      {{ months().length }} meses
+    </span>
+  </div>
+
+  @if (chartEmpty()) {
+    <div class="relative grid place-items-center h-[280px] text-center">
+      <div>
+        <svg
+          class="w-10 h-10 mx-auto text-white/40 mb-3"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+        <p class="text-white/80 text-sm font-medium">Aún no hay votos registrados</p>
+        <button
+          type="button"
+          (click)="createClick.emit()"
+          class="mt-3 px-3.5 py-2 rounded-lg bg-white text-[#5B4FD6] text-xs font-bold hover:bg-white/90 transition-colors"
+        >
+          Registrar el primer líder
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="relative flex gap-4">
+      <div
+        class="flex flex-col justify-between h-[268px] text-[11px] text-white/70 tabular-nums py-0.5 w-9 text-right shrink-0"
+      >
+        @for (t of ticks(); track $index) {
+          <span>{{ fmt(t) }}</span>
+        }
+      </div>
+
+      <div class="relative flex-1 h-[268px]" (mouseleave)="hoverMonth.set(null)">
+        @for (t of ticks(); track $index) {
+          <div class="grid-line" [style.top.%]="($index / (ticks().length - 1)) * 100"></div>
+        }
+
+        <div class="absolute inset-0 flex items-end justify-between gap-1">
+          @for (m of months(); track m.label; let i = $index) {
+            <div
+              class="bar-group relative flex-1 h-full flex items-end justify-center gap-[5px]"
+              (mouseenter)="hoverMonth.set(i)"
+            >
+              <div
+                class="bar bar-a"
+                [style.height.%]="barHeight(m.proyectados)"
+                [style.transition-delay.ms]="i * 55"
+              ></div>
+              <div
+                class="bar bar-b"
+                [style.height.%]="barHeight(m.confirmados)"
+                [style.transition-delay.ms]="i * 55 + 90"
+              ></div>
+
+              @if (hoverMonth() === i) {
+                <div class="bar-tip">
+                  <p class="font-bold text-[11px] mb-1">{{ m.label }}</p>
+                  <p class="flex items-center gap-1.5 text-[11px] whitespace-nowrap">
+                    <span class="w-2 h-2 rounded-full bg-white"></span>Proyectados
+                    <strong class="tabular-nums">{{ fmt(m.proyectados) }}</strong>
+                  </p>
+                  <p class="flex items-center gap-1.5 text-[11px] whitespace-nowrap">
+                    <span class="w-2 h-2 rounded-full bg-[#F5A623]"></span>Confirmados
+                    <strong class="tabular-nums">{{ fmt(m.confirmados) }}</strong>
+                  </p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="relative flex justify-between mt-3 pl-13">
+      @for (m of months(); track m.label) {
+        <span class="flex-1 text-center text-[11.5px] text-white/75">{{ m.label }}</span>
+      }
+    </div>
+
+    <div class="relative flex items-center justify-center gap-6 mt-5 pt-4 border-t border-white/15">
+      <span class="flex items-center gap-2 text-[12px] text-white/90">
+        <span class="w-2.5 h-2.5 rounded-full bg-white"></span>Votos Proyectados
+      </span>
+      <span class="flex items-center gap-2 text-[12px] text-white/90">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#F5A623]"></span>Votos Confirmados
+      </span>
+    </div>
+  }
+</article>

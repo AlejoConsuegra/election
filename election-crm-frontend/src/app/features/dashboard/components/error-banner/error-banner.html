@@ -1,0 +1,61 @@
+<!-- <div
+  class="rise flex items-start gap-3 mb-6 p-4 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/30"
+>
+  <svg
+    class="w-5 h-5 text-[#B26A00] shrink-0 mt-0.5"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+    />
+  </svg>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-[#8A5200]">{{ message() }}</p>
+    <p class="text-xs text-[#A06A20] mt-0.5">
+      Los cálculos y gráficos siguen siendo funcionales sobre el conjunto de demostración.
+    </p>
+  </div>
+  <button
+    type="button"
+    (click)="retry.emit()"
+    class="text-xs font-bold text-[#8A5200] underline underline-offset-2 hover:no-underline"
+  >
+    Reintentar
+  </button>
+</div> -->
+
+<div
+  class="rise flex items-start gap-3 mb-6 p-4 rounded-xl bg-[#F5A623]/10 border border-[#F5A623]/30"
+>
+  <svg
+    class="w-5 h-5 text-[#B26A00] shrink-0 mt-0.5"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"
+    />
+  </svg>
+  <div class="flex-1">
+    <p class="text-sm font-semibold text-[#8A5200]">{{ loadError() }}</p>
+    <p class="text-xs text-[#A06A20] mt-0.5">
+      Los cálculos y gráficos siguen siendo funcionales sobre el conjunto de demostración.
+    </p>
+  </div>
+  <button
+    type="button"
+    (click)="refresh.emit()"
+    class="text-xs font-bold text-[#8A5200] underline underline-offset-2 hover:no-underline"
+  >
+    Reintentar
+  </button>
+</div>

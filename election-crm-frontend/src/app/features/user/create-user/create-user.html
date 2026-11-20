@@ -1,0 +1,129 @@
+<div class="form-container">
+  <h2>Crear Nuevo Usuario</h2>
+  <p class="subtitle">Gestión de Líderes y Administradores del CRM</p>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()" autocomplete="off">
+    @if (message()) {
+      <p class="alert" [class.alert-error]="isError()" [class.alert-success]="!isError()">
+        {{ message() }}
+      </p>
+    }
+
+    <div class="form-group">
+      <label>Nombre Completo</label>
+      <input
+        type="text"
+        formControlName="nombre"
+        autocomplete="name"
+        placeholder="Ej: Juan Pérez"
+        [class.input-error]="hasError('nombre', 'required') || hasError('nombre', 'minlength')"
+      />
+      @if (hasError('nombre', 'required')) {
+        <small class="error-msg">El nombre es obligatorio.</small>
+      }
+      @if (hasError('nombre', 'minlength')) {
+        <small class="error-msg">Mínimo 3 caracteres.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Correo Electrónico</label>
+      <input
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="correo@ejemplo.com"
+        [class.input-error]="hasError('email', 'required') || hasError('email', 'email')"
+      />
+      @if (hasError('email', 'required')) {
+        <small class="error-msg">El correo es obligatorio.</small>
+      }
+      @if (hasError('email', 'email')) {
+        <small class="error-msg">Ingrese un correo válido.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Teléfono</label>
+      <input
+        type="text"
+        formControlName="telefono"
+        autocomplete="tel"
+        placeholder="300 123 4567"
+        [class.input-error]="
+          hasError('telefono', 'required') || hasError('telefono', 'phoneFormat')
+        "
+      />
+      @if (hasError('telefono', 'required')) {
+        <small class="error-msg">El teléfono es obligatorio.</small>
+      }
+      @if (hasError('telefono', 'phoneFormat')) {
+        <small class="error-msg">Solo números (7-15 dígitos).</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Municipio</label>
+      <input
+        type="text"
+        formControlName="municipio"
+        autocomplete="address-level2"
+        placeholder="Ej: Barranquilla"
+        [class.input-error]="hasError('municipio', 'required')"
+      />
+      @if (hasError('municipio', 'required')) {
+        <small class="error-msg">El municipio es obligatorio.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Cédula</label>
+      <input
+        type="text"
+        formControlName="cedula"
+        autocomplete="off"
+        placeholder="1234567890"
+        [class.input-error]="hasError('cedula', 'required') || hasError('cedula', 'cedulaFormat')"
+      />
+      @if (hasError('cedula', 'required')) {
+        <small class="error-msg">La cédula es obligatoria.</small>
+      }
+      @if (hasError('cedula', 'cedulaFormat')) {
+        <small class="error-msg">Solo números (6-15 dígitos).</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        placeholder="Mínimo 12 caracteres"
+        [class.input-error]="
+          hasError('password', 'required') || hasError('password', 'passwordMinLength')
+        "
+      />
+      @if (hasError('password', 'required')) {
+        <small class="error-msg">La contraseña es obligatoria.</small>
+      }
+      @if (hasError('password', 'passwordMinLength')) {
+        <small class="error-msg">Mínimo 12 caracteres (OWASP).</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>Rol</label>
+      <select formControlName="idRol" autocomplete="off">
+        <option [value]="2">Líder</option>
+        <option [value]="3">Coordinador</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="userForm.invalid || isLoading()">
+      {{ isLoading() ? 'Guardando...' : 'Guardar Usuario' }}
+    </button>
+  </form>
+
+  <button (click)="router.navigate(['/dashboard'])" class="btn-back">Volver al Dashboard</button>
+</div>

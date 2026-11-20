@@ -1,0 +1,47 @@
+<article class="dash-card rise h-full p-6" style="animation-delay: 300ms">
+  <div class="flex items-start justify-between mb-4">
+    <div>
+      <h2 class="text-[17px] font-bold text-[#0B2545]">Top Municipios</h2>
+      <p class="text-[12.5px] text-slate-400 mt-0.5">Votos consolidados por territorio</p>
+    </div>
+    <button
+      type="button"
+      (click)="goZones.emit()"
+      class="text-[11.5px] font-bold text-[#1E5AA8] hover:underline underline-offset-2"
+    >
+      Zonas
+    </button>
+  </div>
+  <div class="scroll-area max-h-[318px] overflow-y-auto -mr-2 pr-2">
+    @for (m of topMunicipios(); track m.nombre) {
+      <div class="list-row">
+        <span
+          class="grid place-items-center w-9 h-9 rounded-full text-white text-[11px] font-bold shrink-0"
+          [style.background]="m.color"
+          >{{ m.sigla }}</span
+        >
+        <span class="flex-1 text-[13.5px] font-medium text-slate-700 truncate">{{ m.nombre }}</span>
+        <span class="text-[13.5px] font-bold text-[#0B2545] tabular-nums">{{ fmt(m.votos) }}</span>
+        <span
+          class="inline-flex items-center gap-0.5 text-[11.5px] font-bold w-16 justify-end tabular-nums"
+          [style.color]="trendColor(m.delta)"
+        >
+          {{ m.delta >= 0 ? '+' : '' }}{{ m.delta }}%
+          <svg
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+            [class.rotate-180]="m.delta < 0"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </span>
+      </div>
+    } @empty {
+      <p class="py-10 text-center text-sm text-slate-400">Sin territorios registrados.</p>
+    }
+  </div>
+</article>

@@ -1,0 +1,62 @@
+<article class="dash-card rise h-full p-6 flex flex-col" style="animation-delay: 240ms">
+  <h2 class="text-[17px] font-bold text-[#0B2545]">Avance de Meta</h2>
+  <p class="text-[12.5px] text-slate-400 mt-0.5 mb-2">Cobertura del censo electoral</p>
+
+  <div class="relative grid place-items-center flex-1 min-h-[228px]">
+    <svg
+      viewBox="0 0 200 200"
+      class="w-[212px] h-[212px]"
+      role="img"
+      [attr.aria-label]="'Meta alcanzada ' + percent() + ' por ciento'"
+    >
+      @for (t of ticks(); track $index) {
+        <line
+          class="gauge-tick"
+          [class.gauge-tick-on]="t.filled"
+          [attr.x1]="t.x1"
+          [attr.y1]="t.y1"
+          [attr.x2]="t.x2"
+          [attr.y2]="t.y2"
+          [attr.stroke]="t.filled ? '#3B82F6' : '#E4E9F2'"
+          [style.transition-delay.ms]="tickDelay($index)"
+          stroke-width="5.5"
+          stroke-linecap="round"
+        />
+      }
+    </svg>
+    <div class="absolute text-center">
+      <p class="text-[13px] text-slate-500">Meta Alcanzada</p>
+      <p class="text-[40px] font-bold text-[#0B2545] leading-none mt-1 tabular-nums">
+        {{ percent() }}<span class="text-2xl">%</span>
+      </p>
+      <p class="text-[11.5px] text-slate-400 mt-1.5 tabular-nums">
+        {{ fmt(votes()) }} / {{ fmt(census()) }}
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-2 pt-4 border-t border-[#EEF2F8]">
+    @for (s of stats(); track s.label) {
+      <div class="text-center gauge-stat">
+        <span
+          class="grid place-items-center w-10 h-10 rounded-xl mx-auto mb-2 gauge-stat-icon"
+          [style.background]="s.tint"
+        >
+          <svg
+            class="w-[18px] h-[18px]"
+            [attr.stroke]="s.color"
+            fill="none"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            @for (p of s.paths; track $index) {
+              <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="p" />
+            }
+          </svg>
+        </span>
+        <p class="text-[11.5px] text-slate-500 leading-tight">{{ s.label }}</p>
+        <p class="text-[13px] font-bold text-[#0B2545] mt-0.5 tabular-nums">{{ s.value }}</p>
+      </div>
+    }
+  </div>
+</article>

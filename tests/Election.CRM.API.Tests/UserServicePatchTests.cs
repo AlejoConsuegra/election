@@ -25,7 +25,7 @@ public class UserServicePatchTests
 
         context.Roles.Add(new Role { Id = 1, NameRol = "Admin" });
         context.Roles.Add(new Role { Id = 2, NameRol = "Lider" });
-        context.Roles.Add(new Role { Id = 3, NameRol = "Coordinador" });
+        context.Roles.Add(new Role { Id = 3, NameRol = "Coordinator" });
 
         context.Users.Add(new User
         {
@@ -123,7 +123,7 @@ public class UserServicePatchTests
 
         var request = new PatchUserRequest
         {
-            IdRol = 3 // Cambia legítimamente a Coordinador
+            IdRol = 3 // Cambia legítimamente a Coordinator
         };
 
         // Act

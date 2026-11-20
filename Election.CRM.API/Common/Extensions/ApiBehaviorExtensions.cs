@@ -1,28 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Election.CRM.API.Common.DTOs; // <-- Importante importar esto
 
 namespace Election.CRM.API.Common.Extensions;
 
 public static class ApiBehaviorExtensions
 {
-    /// <summary>
-    /// Configura el comportamiento de validación del modelo para devolver respuestas limpias y seguras (OWASP).
-    /// </summary>
     public static IServiceCollection ConfigureApiBehavior(this IServiceCollection services)
     {
         services.Configure<ApiBehaviorOptions>(options =>
         {
-            // El filtro automático de ModelState debe estar ACTIVO. Si se suprime,
-            // el InvalidModelStateResponseFactory nunca se ejecuta y las validaciones
-            // de los DTO se acumulan sin producir rechazo (ASVS V5.1.3).
             options.SuppressModelStateInvalidFilter = false;
 
             options.InvalidModelStateResponseFactory = context =>
             {
-                // 1. OBTENER EL LOGGER PARA REGISTRAR EL ERROR INTERNAMENTE
                 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
 
-                // 2. EXTRAER LOS ERRORES DE FORMA LIMPIA
+                // 1. Extraer los errores de forma limpia (Diccionario: Campo -> Lista de mensajes)
                 var errors = context.ModelState
                     .Where(e => e.Value?.Errors?.Count > 0)
                     .ToDictionary(
@@ -30,18 +24,15 @@ public static class ApiBehaviorExtensions
                         kvp => kvp.Value?.Errors?.Select(e => e.ErrorMessage).ToArray()
                     );
 
-                // 3. REGISTRAR EN CONSOLA/ARCHIVOS (Solo tú lo ves en los logs)
                 logger.LogWarning("Error de validación en {Path}: {@Errors}", context.HttpContext.Request.Path, errors);
 
-                // 4. CREAR LA RESPUESTA SEGURA PARA EL CLIENTE (Sin traceId, sin RFC, sin stack trace)
-                var response = new
-                {
-                    statusCode = 400,
-                    message = "Datos inválidos. Verifique los campos e inténtelo de nuevo.",
-                    errors = errors
-                };
+                // 2. ¡AQUÍ ESTÁ LA UNIFICACIÓN! Usamos ApiResponse.BuildError
+                var response = ApiResponse<object>.BuildError(
+                    "Datos inválidos. Verifique los campos e inténtelo de nuevo.",
+                    400,
+                    errors // Pasamos el diccionario al campo 'Extra'
+                );
 
-                // 5. DEVOLVER EL RESULTADO HTTP 400 BAD REQUEST
                 return new BadRequestObjectResult(response);
             };
         });

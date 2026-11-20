@@ -1,0 +1,47 @@
+<article
+  class="dash-card rise h-full p-6 lg:col-span-2 xl:col-span-1"
+  style="animation-delay: 420ms"
+>
+  <h2 class="text-[17px] font-bold text-[#0B2545]">Distribución de Votos</h2>
+  <p class="text-[12.5px] text-slate-400 mt-0.5 tabular-nums">
+    {{ fmt(pieTotal()) }} votos por zona
+  </p>
+
+  @if (pieSlices().length === 0) {
+    <p class="py-16 text-center text-sm text-slate-400">Sin votos para distribuir.</p>
+  } @else {
+    <div class="grid place-items-center my-3">
+      <svg viewBox="0 0 200 200" class="w-[210px] h-[210px]">
+        @for (s of pieSlices(); track s.label) {
+          <path
+            class="pie-slice"
+            [attr.d]="s.path"
+            [attr.fill]="s.color"
+            stroke="#fff"
+            stroke-width="2"
+          />
+        }
+        @for (s of pieSlices(); track s.label) {
+          @if (s.showLabel) {
+            <text
+              [attr.x]="s.labelX"
+              [attr.y]="s.labelY"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              class="pie-label"
+            >
+              {{ s.percent.toFixed(1) }}%
+            </text>
+          }
+        }
+      </svg>
+    </div>
+    <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 pt-3 border-t border-[#EEF2F8]">
+      @for (s of pieSlices(); track s.label) {
+        <span class="inline-flex items-center gap-1.5 text-[11.5px] text-slate-600">
+          <span class="w-2.5 h-2.5 rounded-sm" [style.background]="s.color"></span>{{ s.label }}
+        </span>
+      }
+    </div>
+  }
+</article>

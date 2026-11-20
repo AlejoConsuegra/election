@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable } from 'rxjs';
-import { ZoneRequest } from '../interfaces/zone.request';
+import { ZoneRequest } from '../models/zone.request';
 
 @Injectable({
   providedIn: 'root',

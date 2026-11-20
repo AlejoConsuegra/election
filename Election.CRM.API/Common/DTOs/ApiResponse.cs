@@ -9,7 +9,6 @@ public class ApiResponse<T>
     public T? Datos { get; set; }
     public object? Extra { get; set; }
 
-    // Reúsa la lógica que ya tenías en ControllerExtensions.Error
     public static ApiResponse<object> BuildError(string message, int statusCode, object? extra = null)
     {
         return new ApiResponse<object>
@@ -19,11 +18,10 @@ public class ApiResponse<T>
             HttpCode = statusCode,
             Message = message,
             Datos = null,
-            Extra = extra
+            Extra = extra 
         };
     }
 
-    // Reúsa la lógica que ya tenías en ControllerExtensions.Success
     public static ApiResponse<T> BuildSuccess(T? data, string message, int statusCode)
     {
         return new ApiResponse<T>

@@ -50,7 +50,7 @@ public class UpdateUserRequest
     public string Municipio { get; set; } = null!;
 
     /// <summary>
-    /// Rol asignado. Solo se admiten Líder (2) y Coordinador (3).
+    /// Rol asignado. Solo se admiten Líder (2) y Coordinator (3).
     /// El rol Admin (1) no puede asignarse desde la API.
     /// </summary>
     /// <example>2</example>

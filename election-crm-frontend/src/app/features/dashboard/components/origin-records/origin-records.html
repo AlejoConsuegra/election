@@ -1,0 +1,48 @@
+<article class="dash-card rise h-full p-6" style="animation-delay: 360ms">
+  <div class="mb-4">
+    <h2 class="text-[17px] font-bold text-[#0B2545]">Origen de Registros</h2>
+    <p class="text-[12.5px] text-slate-400 mt-0.5 tabular-nums">
+      {{ fmt(sourcesTotal()) }} líderes captados
+    </p>
+  </div>
+  <div class="scroll-area max-h-[318px] overflow-y-auto -mr-2 pr-2">
+    @for (s of sources(); track s.label) {
+      <div class="list-row">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-[#F1F4FA] shrink-0">
+          <svg
+            class="w-[17px] h-[17px] text-slate-500"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            viewBox="0 0 24 24"
+          >
+            @for (p of s.paths; track p) {
+              <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="p" />
+            }
+          </svg>
+        </span>
+        <span class="flex-1 text-[13.5px] font-medium text-slate-700 truncate">{{ s.label }}</span>
+        <span class="text-[13.5px] font-bold text-[#0B2545] tabular-nums">{{ fmt(s.value) }}</span>
+        <span
+          class="inline-flex items-center gap-0.5 text-[11.5px] font-bold w-16 justify-end tabular-nums"
+          [style.color]="trendColor(s.delta)"
+        >
+          {{ s.delta >= 0 ? '+' : '' }}{{ s.delta }}%
+          <svg
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            viewBox="0 0 24 24"
+            [class.rotate-180]="s.delta < 0"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+          </svg>
+        </span>
+      </div>
+    } @empty {
+      <p class="py-10 text-center text-sm text-slate-400">Sin canales de captación aún.</p>
+    }
+  </div>
+</article>

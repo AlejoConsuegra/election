@@ -20,7 +20,7 @@ public class UserController : ControllerBase
 
     // Admin ve Líderes y Coordinadores. Coordinador ve solo Líderes.
     [HttpGet]
-    [Authorize(Roles = "Admin, Coordinador")] 
+    [Authorize(Roles = "Admin, Coordinator")] 
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginatedRequest request,
         [FromQuery] string? nombre,

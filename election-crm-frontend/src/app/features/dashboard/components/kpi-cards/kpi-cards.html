@@ -1,0 +1,48 @@
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-5">
+  @if (isLoading()) {
+    @for (s of [1, 2, 3, 4]; track s) {
+      <div class="dash-card p-5 h-[148px]">
+        <div class="sk h-3.5 w-28 mb-6"></div>
+        <div class="sk h-8 w-24 mb-5"></div>
+        <div class="sk h-5 w-36"></div>
+      </div>
+    }
+  } @else {
+    @for (k of kpiCards(); track k.key; let i = $index) {
+      <article class="dash-card kpi rise p-5" [style.animation-delay.ms]="60 + i * 70">
+        <div class="flex items-start justify-between gap-3">
+          <span class="text-[13.5px] font-medium text-slate-600 pt-1">{{ k.label }}</span>
+          <span
+            class="grid place-items-center w-11 h-11 rounded-full shrink-0 kpi-icon"
+            [style.background]="k.color"
+            [style.box-shadow]="'0 8px 18px -6px ' + k.color"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              @for (p of k.paths; track p) {
+                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="p" />
+              }
+            </svg>
+          </span>
+        </div>
+        <div class="mt-3 text-[30px] font-bold text-[#0B2545] leading-none tabular-nums">
+          {{ fmt(k.value) }}
+        </div>
+        <div class="mt-4 flex items-center gap-2">
+          <span
+            class="px-2 py-1 rounded-md text-[11.5px] font-bold tabular-nums"
+            [style.background]="k.tint"
+            [style.color]="k.color"
+            >{{ k.delta }}%</span
+          >
+          <span class="text-[12px] text-slate-400">vs. semana anterior</span>
+        </div>
+      </article>
+    }
+  }
+</section>

@@ -137,7 +137,7 @@ public class AuthService
         _refreshTokenService.SaveRefreshToken(newRefreshToken, user.Id);
 
         // 5. Generar nuevo access token
-        var jwtResponse = _jwtService.GenerateLoginResponse(user, user.IdRolNavigation.NameRol, refreshToken);
+        var jwtResponse = _jwtService.GenerateLoginResponse(user, user.IdRolNavigation.NameRol, newRefreshToken);
 
         _cookieService.SetAuthCookies(jwtResponse.Token, jwtResponse.RefreshToken, jwtResponse.Expiration);
 
