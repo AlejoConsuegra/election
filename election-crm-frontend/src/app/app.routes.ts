@@ -29,6 +29,13 @@ export const routes: Routes = [
       { path: 'crear-zona', component: CreateZone },
       { path: 'editar-zona/:id', component: CreateZone },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'access-denied',
+        loadComponent: () =>
+          import('./features/dashboard/components/access-denied').then(
+            (m) => m.AccessDeniedComponent,
+          ),
+      },
     ],
   },
 

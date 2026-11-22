@@ -89,9 +89,8 @@ public class AuthService
         if (user == null || !PasswordHelper.VerifyPassword(request.Password, user.Password))
         {
             _loginAttemptService.RecordFailedAttempt(ipAddress);
-            var remaining = _loginAttemptService.GetRemainingAttempts(ipAddress);
-            throw new UnauthorizedAccessException(
-                $"Credenciales inválidas. Intentos restantes: {remaining}");
+
+            throw new InvalidOperationException("Credenciales inválidas.");
         }
 
         // 4. Login exitoso, resetear intentos

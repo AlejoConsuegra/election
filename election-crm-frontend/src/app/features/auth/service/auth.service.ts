@@ -25,10 +25,9 @@ export class AuthService {
   public readonly isUserLeader = computed(() => this.user()?.datos.rol === 'Lider');
 
   login(credentials: LoginRequest): Observable<boolean> {
-    return this.http.post<unknown>(`${this.baseUrl}/api/Auth/login`, credentials).pipe(
-      map(() => true),
-      catchError(() => of(false)),
-    );
+    return this.http
+      .post<unknown>(`${this.baseUrl}/api/Auth/login`, credentials)
+      .pipe(map(() => true));
   }
 
   /**
@@ -36,10 +35,6 @@ export class AuthService {
    * NOTA: Este método SOLO actualiza el estado local. NO redirige.
    */
   loadProfile(): Observable<UserProfile | null> {
-    if (this.user()) {
-      return of(this.user());
-    }
-
     this.isLoading.set(true);
 
     return this.http.get<UserProfile>(`${this.baseUrl}/api/Auth/me`).pipe(
@@ -73,5 +68,6 @@ export class AuthService {
   clearSession(): void {
     this.user.set(null);
     this.isLoading.set(false);
+    document.cookie = 'session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   }
 }

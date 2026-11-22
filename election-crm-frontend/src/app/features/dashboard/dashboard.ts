@@ -359,6 +359,13 @@ export class Dashboard implements OnInit, OnDestroy {
   readonly pieTotal = computed(() => this.pieSlices().reduce((a, s) => a + s.value, 0));
 
   ngOnInit(): void {
+    // Validar que el usuario NO sea Lider
+    const role = this.userRole();
+    if (role === 'Lider') {
+      this.router.navigate(['/access-denied']);
+      return;
+    }
+
     this.load();
   }
 
@@ -369,6 +376,12 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   load(): void {
+    const role = this.userRole();
+    if (role === 'Lider') {
+      this.router.navigate(['/access-denied']);
+      return;
+    }
+
     this.isLoading.set(true);
     this.loadError.set(null);
     this.chartReady.set(false);
